@@ -1,10 +1,10 @@
 {
-  "name": "node",
+  "name": "gifr-node",
   "version": "1.0.0",
-  "description": "",
+  "description": "Node.js backend for gifr, random gif telegram bot",
   "main": "index.js",
-  "author": "Anand Mani Sankar",
-  "license": "ISC",
+  "author": "vesakilp",
+  "license": "GPL",
   "dependencies": {
     "express": "^4.12.3",
     "hiredis": "^0.2.0",
