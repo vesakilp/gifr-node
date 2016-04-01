@@ -3,6 +3,7 @@ var express = require('express'),
     redis = require('redis');
 
 var app = express();
+var gifr = express();
 
 console.log(process.env.REDIS_PORT_6379_TCP_ADDR + ':' + process.env.REDIS_PORT_6379_TCP_PORT);
 
@@ -23,9 +24,11 @@ app.get('/', function(req, res, next) {
   });
 });
 
-app.get('/214343648:AAEKHOC2AnxDPg7OW_vEBtb2mY4HGxNKw6k', function(req, res, next) {
-  console.log("token url was requested: " + req);
+gifr.get('/', function (req, res) {
+  console.log('gifr request' req);
 });
+
+app.use('/gifr', gifr); //token url here?
 
 
 http.createServer(app).listen(process.env.PORT || 8080, function() {
