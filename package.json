@@ -2,7 +2,7 @@
   "name": "gifr-node",
   "version": "1.0.0",
   "description": "Node.js backend for gifr, random gif telegram bot",
-  "main": "index.js",
+  "main": "server.js",
   "author": "vesakilp",
   "license": "GPL",
   "dependencies": {
