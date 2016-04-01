@@ -23,6 +23,11 @@ app.get('/', function(req, res, next) {
   });
 });
 
+app.get('/214343648:AAEKHOC2AnxDPg7OW_vEBtb2mY4HGxNKw6k', function(req, res, next) {
+  console.log("token url was requested: " + req);
+});
+
+
 http.createServer(app).listen(process.env.PORT || 8080, function() {
   console.log('Listening on port ' + (process.env.PORT || 8080));
 });
