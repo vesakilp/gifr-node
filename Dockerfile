@@ -29,5 +29,4 @@ EXPOSE  8080
 RUN npm install
 
 # Run app using nodemon
-
 CMD ["nodemon", "/src/server.js"]
