@@ -3,63 +3,78 @@
 // BASE SETUP
 // ==============================================
 
+require('es6-promise').polyfill();
 var express = require('express');
+var bodyParser = require('body-parser');
+var axios = require('axios');
 var app = express();
 var port = process.env.PORT || 8080;
 
-// ROUTES
-// ==============================================
+var giphyApiKey = 'dc6zaTOxFJmzC';
+var giphyRandomApiUrl = 'http://api.giphy.com/v1/gifs/random';
+var originalSearchTerm = '';
 
-// sample route with a route the way we're used to seeing it
-app.get('/sample', function(req, res) {
-    res.send('this is a sample!');
+app.use(bodyParser.json());
+// route with parameters (http://localhost:8080/token/:searchTerm)
+app.post('/token', function(req, res) {
+    console.log('request', req.body);
+    if(req.body && req.body.inline_query && req.body.inline_query.query) {
+        originalSearchTerm = req.body.inline_query.query;
+        makeGiffyApiCall(originalSearchTerm, res);
+    }
+    else {
+        //TODO error message response
+    }
 });
 
-// we'll create our routes here
+function makeGiffyApiCall(searchTerm, res) {
+    console.log('createGiffyApiCall', searchTerm);
+    searchTerm = recastSearchTerm(searchTerm);
+    console.log('make giphy api call with search term: ' + searchTerm);
+    axios.get(giphyRandomApiUrl + '?api_key=' + giphyApiKey + '&tag' + searchTerm + '&fmt')
+      .then(function (response) {
+          console.log('response1', response.data.data);
+          if(response.data.data && response.data.data.image_url) {
+              if(response.data.data.type !== 'gif') {
+                  makeGiffyApiCall(searchTerm, res);
+              }
+              var responseJson = constructResponseJson(response.data.data);
+              console.log('responseJson', responseJson);
+              res.status(200);
+              res.setHeader('Content-Type', 'application/json');
+              console.log('send json');
+              res.json(responseJson);
+          } else {
+              res.status(501).send('error in giphy api');
+          }
+      })
+      .catch(function (error) {
+          console.log('response catch', error);
+          res.status(501).send(error);
+      });
+    //http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=american+psycho
+}
 
-// get an instance of router
-var router = express.Router();
+function recastSearchTerm(searchTerm) {
+    return searchTerm.split(' ').join('+');
+}
 
-// route middleware that will happen on every request
-router.use(function(req, res, next) {
+function constructResponseJson(response) {
+    var responseJson = {
+        type: response.type,
+        id: response.id,
+        gif_url: response.image_url,
+        thumb_url: response.fixed_width_small_still_url,
+        caption: originalSearchTerm
+    }
 
-    // log each request to the console
-    console.log(req.method, req.url);
 
-    // continue doing what we were doing and go to the route
-    next();
-});
-
-// home page route (http://localhost:8080)
-router.get('/', function(req, res) {
-    res.send('im the home page!');
-});
-
-// about page route (http://localhost:8080/about)
-router.get('/about', function(req, res) {
-    res.send('im the about page!');
-});
-
-// route middleware to validate :name
-router.param('name', function(req, res, next, name) {
-    // do validation on name here
-    // blah blah validation
-    // log something so we know its working
-    console.log('doing name validations on ' + name);
-
-    // once validation is done save the new item in the req
-    req.name = name;
-    // go to the next thing
-    next();
-});
-
-// route with parameters (http://localhost:8080/hello/:name)
-router.get('/hello/:name', function(req, res) {
-    res.send('hello ' + req.params.name + '!');
-});
+    return responseJson;
+    console.log('constructResponseJson', responseJson);
+}
 
 // apply the routes to our application
-app.use('/', router);
+//app.use('/', router);
 
 // START THE SERVER
 // ==============================================
